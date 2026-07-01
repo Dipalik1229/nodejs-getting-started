@@ -1,0 +1,36 @@
+name: Deploy Node.js App to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            cd /home/ubuntu
+
+            if [ ! -d "node-js-getting-started" ]; then
+              git clone https://github.com/Dipalik1229/nodejs-getting-started.git
+            fi
+
+            cd node-js-getting-started
+
+            git pull origin main
+
+            npm install
+
+            pm2 delete nodeapp || true
+            pm2 start npm --name nodeapp -- start
+
+            pm2 save
