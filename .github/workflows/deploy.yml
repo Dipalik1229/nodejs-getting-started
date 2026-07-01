@@ -23,7 +23,7 @@ jobs:
 
           script: |
             if [ ! -d "/home/ubuntu/node-js-getting-started" ]; then
-              git clone https://github.com/Dipalik1229/nodejs-getting-started.git /home/ubuntu/node-js-getting-started       
+              git clone https://github.com/Dipalik1229/nodejs-getting-started.git       
             fi
               
             cd /home/ubuntu/node-js-getting-started
