@@ -10,28 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy using SSH
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
-
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
           script: |
-            if [ ! -d "/home/ubuntu/node-js-getting-started" ]; then
-              git clone https://github.com/Dipalik1229/nodejs-getting-started.git       
+            
+            # Go to home directory
+            cd /home/ubuntu
+
+            # Clone repo if not exists
+            if [ ! -d "nodejs-getting-started" ]; then
+              git clone https://github.com/Dipalik1229/nodejs-getting-started.git
             fi
-              
-            cd /home/ubuntu/node-js-getting-started
 
-            git pull origin main
+            cd nodejs-getting-started
 
+            # Force sync with GitHub
+            git fetch --all
+            git reset --hard origin/main
+
+            # Install dependencies
             npm install
 
-            pm2 restart nodeapp || pm2 start npm --name nodeapp -- start
+            # Restart application properly
+            pm2 delete nodeapp || true
+            pm2 start npm --name nodeapp -- start
 
             pm2 save
